@@ -17,7 +17,8 @@ class Lottery{
     }
 
     createLottery(){
-        let div = document.createElement(div)
+        let div = document.createElement(div);
+        div.id = 'lottery';
         div.innerHTML ='<div id="1"><img src="'+this._items[0]['url']+'"></div>'
                         +'<div id="2"><img src="'+this._items[1]['url']+'"></div>'
                         +'<div id="3"><img src="'+this._items[2]['url']+'"></div>'
@@ -42,6 +43,7 @@ class Lottery{
     }
 
     runStep(step,time) {
+
         for (let i = 0; i < step; i++) {
             if (this._nowNum > 7) {
                 setTimeout("this._nowNum = 1;", time);
