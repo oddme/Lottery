@@ -1,0 +1,49 @@
+html body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#app {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+#lottery {
+    width: 600px;
+    height: 600px;
+    position: relative;
+}
+
+.row {
+    position: relative;
+    width: 600px;
+    height: 200px;
+}
+
+#lottery .box {
+    position: relative;
+    float: left;
+}
+
+#lottery img{
+    width: 200px;
+    height: 200px;
+}
+
+.mask {
+    width: 200px;
+    height: 200px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background-color: rgba(252,211,4,0.5);
+}
+.clear{
+    clear: both;
+    height: 0;
+    line-height: 0;
+    font-size: 0
+}
