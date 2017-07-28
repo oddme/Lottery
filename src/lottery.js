@@ -6,7 +6,7 @@ class Lottery {
     _items = [];
     _nowNum = 1;
     _round = 3;
-    _stepto = 0;
+    _stepTo = 0;
     _dom = null;
     _timer1 = null;
     _timer2 = null;
@@ -53,10 +53,10 @@ class Lottery {
                 num = 1;
                 let deep = self;
                 deep._timer2 = setInterval(function () {
-                    if(num >= deep._stepto + 8 ){
+                    if(num >= deep._stepTo + 8 ){
                         clearInterval(deep._timer2);
                         alert(deep._items[deep._nowNum]['text']);
-                        deep._stepto = 0;
+                        deep._stepTo = 0;
                         deep._timer1 = null;
                         deep._timer2 = null;
                     } else {
@@ -70,8 +70,8 @@ class Lottery {
 
 
     _btnRun(){
-        if(this._stepto === 0){
-            this._stepto = Math.floor(Math.random() * 8 + 1);
+        if(this._stepTo === 0){
+            this._stepTo = Math.floor(Math.random() * 8 + 1);
         }
         if(!this._timer1 && !this._timer2) {
             this._runStep();
@@ -99,9 +99,9 @@ class Lottery {
 
     setLuckyNum(ste){
         if(ste >= this._nowNum){
-            this._stepto = (ste + 1) - this._nowNum;
+            this._stepTo = (ste + 1) - this._nowNum;
         } else {
-            this._stepto = (ste + 9)- this._nowNum;
+            this._stepTo = (ste + 9)- this._nowNum;
         }
     }
 
@@ -116,7 +116,7 @@ class Lottery {
     stop() {
         clearInterval(this._timer1);
         clearInterval(this._timer2);
-        this._stepto = 0;
+        this._stepTo = 0;
         this._timer1 = null;
         this._timer2 = null;
         alert(this._items[this._nowNum]['text']);
