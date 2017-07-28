@@ -6,6 +6,7 @@ class Lottery {
     _items = [];
     _nowNum = 1;
     _round = 3;
+    _stepto = 0;
     _dom = null;
     _timer1 = null;
     _timer2 = null;
@@ -17,7 +18,7 @@ class Lottery {
         this._dom = dom;
     }
 
-    removeHighLight(className) {
+    _removeHighLight(className) {
         if (className === 1) {
             let highLightItem = document.getElementsByName('8')[0];
             highLightItem.removeAttribute('class');
@@ -27,38 +28,39 @@ class Lottery {
         }
     }
 
-    step(){
+    _step(){
         if (this._nowNum > 7) {
             this._nowNum = 1;
-            this.removeHighLight(this._nowNum);
+            this._removeHighLight(this._nowNum);
             let nowItem = document.getElementsByName(this._nowNum.toString())[0];
             nowItem.setAttribute('class', 'mask');
         } else {
             this._nowNum++;
-            this.removeHighLight(this._nowNum);
+            this._removeHighLight(this._nowNum);
             let nowItem = document.getElementsByName(this._nowNum.toString())[0];
             nowItem.setAttribute('class', 'mask');
         }
     }
 
-    runStep(ste) {
+    _runStep() {
         let num = 1;
         let self = this;
         self._timer1 = setInterval(function () {
-            self.step();
+            self._step();
             num++;
             if(num > self._round*8){
                 clearInterval(self._timer1);
                 num = 1;
                 let deep = self;
                 deep._timer2 = setInterval(function () {
-                    if(num > ste + 8){
+                    if(num >= deep._stepto + 8 ){
                         clearInterval(deep._timer2);
-                        deep.stop();
+                        alert(deep._items[deep._nowNum]['text']);
+                        deep._stepto = 0;
                         deep._timer1 = null;
                         deep._timer2 = null;
                     } else {
-                        deep.step();
+                        deep._step();
                         num++;
                     }
                 }, 300);
@@ -67,14 +69,18 @@ class Lottery {
     }
 
 
-    btnRun(){
-        let ste = Math.random() * 8 + 1;
-        if(!this._timer1 && !this._timer2) {
-            this.runStep(ste);
+    _btnRun(){
+        if(this._stepto === 0){
+            this._stepto = Math.floor(Math.random() * 8 + 1);
         }
+        if(!this._timer1 && !this._timer2) {
+            this._runStep();
+
+        }
+
     }
 
-    createLottery() {
+    _createLottery() {
 
         let div = document.createElement('div');
         div.setAttribute("id", 'lottery');
@@ -91,15 +97,28 @@ class Lottery {
 
     }
 
+    setLuckyNum(ste){
+        if(ste >= this._nowNum){
+            this._stepto = (ste + 1) - this._nowNum;
+        } else {
+            this._stepto = (ste + 9)- this._nowNum;
+        }
+    }
+
     start() {
-        this.createLottery();
+        this._createLottery();
         let start = document.getElementsByName('start-btn')[0];
         start.addEventListener('click', () => {
-            this.btnRun();
+            this._btnRun();
         });
     }
 
     stop() {
+        clearInterval(this._timer1);
+        clearInterval(this._timer2);
+        this._stepto = 0;
+        this._timer1 = null;
+        this._timer2 = null;
         alert(this._items[this._nowNum]['text']);
     }
 }

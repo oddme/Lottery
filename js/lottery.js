@@ -15,6 +15,7 @@ var Lottery = function () {
         this._items = [];
         this._nowNum = 1;
         this._round = 3;
+        this._stepto = 0;
         this._dom = null;
         this._timer1 = null;
         this._timer2 = null;
@@ -26,8 +27,8 @@ var Lottery = function () {
     }
 
     _createClass(Lottery, [{
-        key: 'removeHighLight',
-        value: function removeHighLight(className) {
+        key: '_removeHighLight',
+        value: function _removeHighLight(className) {
             if (className === 1) {
                 var highLightItem = document.getElementsByName('8')[0];
                 highLightItem.removeAttribute('class');
@@ -37,40 +38,41 @@ var Lottery = function () {
             }
         }
     }, {
-        key: 'step',
-        value: function step() {
+        key: '_step',
+        value: function _step() {
             if (this._nowNum > 7) {
                 this._nowNum = 1;
-                this.removeHighLight(this._nowNum);
+                this._removeHighLight(this._nowNum);
                 var nowItem = document.getElementsByName(this._nowNum.toString())[0];
                 nowItem.setAttribute('class', 'mask');
             } else {
                 this._nowNum++;
-                this.removeHighLight(this._nowNum);
+                this._removeHighLight(this._nowNum);
                 var _nowItem = document.getElementsByName(this._nowNum.toString())[0];
                 _nowItem.setAttribute('class', 'mask');
             }
         }
     }, {
-        key: 'runStep',
-        value: function runStep(ste) {
+        key: '_runStep',
+        value: function _runStep() {
             var num = 1;
             var self = this;
             self._timer1 = setInterval(function () {
-                self.step();
+                self._step();
                 num++;
                 if (num > self._round * 8) {
                     clearInterval(self._timer1);
                     num = 1;
                     var deep = self;
                     deep._timer2 = setInterval(function () {
-                        if (num > ste + 8) {
+                        if (num >= deep._stepto + 8) {
                             clearInterval(deep._timer2);
-                            deep.stop();
+                            alert(deep._items[deep._nowNum]['text']);
+                            deep._stepto = 0;
                             deep._timer1 = null;
                             deep._timer2 = null;
                         } else {
-                            deep.step();
+                            deep._step();
                             num++;
                         }
                     }, 300);
@@ -78,16 +80,18 @@ var Lottery = function () {
             }, 100);
         }
     }, {
-        key: 'btnRun',
-        value: function btnRun() {
-            var ste = Math.random() * 8 + 1;
+        key: '_btnRun',
+        value: function _btnRun() {
+            if (this._stepto === 0) {
+                this._stepto = Math.floor(Math.random() * 8 + 1);
+            }
             if (!this._timer1 && !this._timer2) {
-                this.runStep(ste);
+                this._runStep();
             }
         }
     }, {
-        key: 'createLottery',
-        value: function createLottery() {
+        key: '_createLottery',
+        value: function _createLottery() {
 
             var div = document.createElement('div');
             div.setAttribute("id", 'lottery');
@@ -95,19 +99,33 @@ var Lottery = function () {
             this._dom.appendChild(div);
         }
     }, {
+        key: 'setLuckyNum',
+        value: function setLuckyNum(ste) {
+            if (ste >= this._nowNum) {
+                this._stepto = ste + 1 - this._nowNum;
+            } else {
+                this._stepto = ste + 9 - this._nowNum;
+            }
+        }
+    }, {
         key: 'start',
         value: function start() {
             var _this = this;
 
-            this.createLottery();
+            this._createLottery();
             var start = document.getElementsByName('start-btn')[0];
             start.addEventListener('click', function () {
-                _this.btnRun();
+                _this._btnRun();
             });
         }
     }, {
         key: 'stop',
         value: function stop() {
+            clearInterval(this._timer1);
+            clearInterval(this._timer2);
+            this._stepto = 0;
+            this._timer1 = null;
+            this._timer2 = null;
             alert(this._items[this._nowNum]['text']);
         }
     }]);
@@ -117,10 +135,5 @@ var Lottery = function () {
 
 var app = document.getElementById('app');
 var lottery = new Lottery([{ 'url': 'images/btn.png', 'text': '开始按钮' }, { 'url': 'images/01.png', 'text': '恭喜你抽中1元现金红包' }, { 'url': 'images/02.png', 'text': '恭喜你抽中2元现金红包' }, { 'url': 'images/03.png', 'text': '恭喜你抽中3元现金红包' }, { 'url': 'images/04.png', 'text': '恭喜你抽中4元现金红包' }, { 'url': 'images/05.png', 'text': '恭喜你抽中5元现金红包' }, { 'url': 'images/06.png', 'text': '恭喜你抽中6元现金红包' }, { 'url': 'images/07.png', 'text': '恭喜你抽中7元现金红包' }, { 'url': 'images/08.png', 'text': '恭喜你抽中8元现金红包' }], 3, app);
-// let style = document.createElement('link');
-// style.setAttribute('src','css/style.css');
-// style.setAttribute('type','text/css');
-// style.setAttribute('rel','stylesheet');
-// document.getElementsByTagName('head')[0].appendChild(style);
 
 lottery.start();
