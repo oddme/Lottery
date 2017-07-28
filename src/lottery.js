@@ -10,27 +10,38 @@ class Lottery {
     _dom = null;
     _timer1 = null;
     _timer2 = null;
+    _maxStep = 8;
+    _initialStep = 1;
 
     constructor(arr, round, dom) {
         this._items = arr;
         this._nowNum = 1;
         this._round = round;
         this._dom = dom;
+        // this.dataSource = null;
+        // this.dataSourceTime = 5 * 1000;
+        //
+        // Promise.then(toStep => {
+        //     setLucy...
+        // });
     }
 
     _removeHighLight(className) {
-        if (className === 1) {
-            let highLightItem = document.getElementsByName('8')[0];
-            highLightItem.removeAttribute('class');
-        } else {
-            let highLightItem = document.getElementsByName((className - 1).toString())[0];
-            highLightItem.removeAttribute('class');
-        }
+        // if (className === 1) {
+        //     let highLightItem = document.getElementsByName('8')[0];
+        //     highLightItem.removeAttribute('class');
+        // } else {
+        //     let highLightItem = document.getElementsByName((className - 1).toString())[0];
+        //     highLightItem.removeAttribute('class');
+        // }
+        let idx = className <= this._initialStep ? this._maxStep : className--;
+        let highLightItem = document.getElementsByName((idx).toString())[0];
+        highLightItem.removeAttribute('class');
     }
 
     _step(){
-        if (this._nowNum > 7) {
-            this._nowNum = 1;
+        if (this._nowNum >= this._maxStep) {
+            this._nowNum = this._initialStep;
             this._removeHighLight(this._nowNum);
             let nowItem = document.getElementsByName(this._nowNum.toString())[0];
             nowItem.setAttribute('class', 'mask');
@@ -44,28 +55,57 @@ class Lottery {
 
     _runStep() {
         let num = 1;
+        let num2 = 1;
         let self = this;
-        self._timer1 = setInterval(function () {
+
+        function interval(callback, interval) {
+            setTimeout(callback, interval);
+        }
+
+        function tick2(self) {
+            if(num2 >= self._stepto + 8 ){
+                alert(self._items[self._nowNum]['text']);
+                self._stepto = 0;
+                return 0;
+            } else {
+                self._step();
+                num2++;
+                interval(tick2, 300);
+            }
+        }
+
+        function tick(self) {
             self._step();
             num++;
             if(num > self._round*8){
-                clearInterval(self._timer1);
-                num = 1;
-                let deep = self;
-                deep._timer2 = setInterval(function () {
-                    if(num >= deep._stepto + 8 ){
-                        clearInterval(deep._timer2);
-                        alert(deep._items[deep._nowNum]['text']);
-                        deep._stepto = 0;
-                        deep._timer1 = null;
-                        deep._timer2 = null;
-                    } else {
-                        deep._step();
-                        num++;
-                    }
-                }, 300);
+                interval(tick2(self), 300);
+            } else {
+                interval(tick, 100);
             }
-        }, 100);
+        }
+        interval(tick(self), 100);
+
+        // self._timer1 = setInterval(function () {
+        //     self._step();
+        //     num++;
+        //     if(num > self._round*8){
+        //         clearInterval(self._timer1);
+        //         num = 1;
+        //         let deep = self;
+        //         deep._timer2 = setInterval(function () {
+        //             if(num >= deep._stepto + 8 ){
+        //                 clearInterval(deep._timer2);
+        //                 alert(deep._items[deep._nowNum]['text']);
+        //                 deep._stepto = 0;
+        //                 deep._timer1 = null;
+        //                 deep._timer2 = null;
+        //             } else {
+        //                 deep._step();
+        //                 num++;
+        //             }
+        //         }, 300);
+        //     }
+        // }, 100);
     }
 
 
