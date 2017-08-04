@@ -215,8 +215,5 @@ class Lottery {
         this._stopNum = this._nowNum;
         alert(this._items[this._nowNum]['text']);
     }
-
-
-
 }
 
