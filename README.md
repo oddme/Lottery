@@ -2,9 +2,9 @@
 a simple Lottery package 
 
 ### 使用方法
-首先要使用这个简单的抽奖器只需要两个文件，‘css/style.css’和‘js/lottery.js’，将这两个文件引入到你的文件中就可以开始使用了。在你的js代码中插入以下代码
+首先要使用这个简单的抽奖器只需要两个文件，‘css/style.css’和‘js/lottery.js’，将这两个文件引入到你的项目中就可以开始使用了。在你的js代码中插入以下代码
 
-    let lottery = new Lottery(arr,round,dom);
+    let lottery = new Lottery(arr,round,dom,timeout,start,end);
     lottery.start();
     
 参数arr：按顺序传入的抽奖项目图片url和奖品描述对象组成的数组，其中第1个应为开始按钮图片，例如
@@ -43,64 +43,42 @@ a simple Lottery package
 
 参数dom，是生成lottery的目标位置父节点的dom对象
 
+参数timeout，是给定的超时设定，单位为ms，在超过timeout时间内还没有传入抽奖结果的话，此次抽奖会失败并提醒超时
+
+参数start和end，是系统在抽奖开始和结束时会调用的两个回调函数，start没有参数，end有结束状态参数event，event有三种可能取值，‘timeout’，‘compelete’和‘break’，分别代表超时结束，完成抽奖结束和中断结束。
+
 例如：
 
     <div id="foo">
     </div>
     <script>
     let foo = document.getElementById('foo');
-    let lottery = new Lottery(arr,round,foo);
+    let start = function(){
+        console.log('now lottery start');
+    }
+    let end = function(event){
+        console.log('now lottery'+event);
+    }
+    let lottery = new Lottery(arr,round,foo,5000,start,end);
     </script>
      
-这段代码会在foo下创建一个Lottery，然后可以通过调用setLuckyNum()方法来设定中奖条目，你可以自己编写一个概率函数来确定下次的中奖号码，然后使用这个函数将中奖号码作为参数调用（我才不会说是我懒得写概率处理函数了才没提供用来确定概率的接口的，所以还是自己动手生成中奖号码交给我吧），也提供停止方法stop()在实例化出lottery对象后调用即可.
+这段代码会在foo下创建一个Lottery，然后可以通过调用setLuckyNum()方法来设定中奖条目，你可以自己编写一个概率函数来确定下次的中奖号码或者从服务器获取数据，然后使用这个函数将中奖号码作为参数调用，这里也提供停止方法stop(),在实例化出lottery对象后调用即可停止.
 
 ### Loteery对象说明：
 
-\_开头的方法和字段为内部资源，不允许调用。
+Lottery对象中提供的外部方法
 
-Lottery对象有以下字段
-
-    _items = [];
-    _nowNum = 1;
-    _round = 3;
-    _stepto = 0;
-    _dom = null;
-    _timer1 = null;
-    _timer2 = null;
-
-其中_items字段为数组类型，用以存放在实例化时传进的数组参数
-
-\_nowNum记录当前奖项位置，位置为1~8顺时针顺序排列
-
-\_round存放基础转动圈数，_stepto是下轮中奖位置默认为0，为0时在抽奖开始时会随机分配一个数，可调用方法指定其值
-
-\_dom为转盘插入位置的父节点
-
-\_timer1和_timer2是存放两个定时器的字段，用以防止用户多次点击而创建多个定时器。
-
-Lottery对象中的方法
-
-    _removeHighLight()
-    _step()
-    _runStep()
-    _btnRun()
-    _createLottery()
     setLuckyNum(step)
+    getResult()
     start()
     stop()
 
-stop()方法，用以中途强制停止。
+stop()方法，用以中途强制停止，调用后轮转立即停止，并且end返回的参数为‘break’。
 
-start()方法，用以生成抽奖器。
+start()方法，用以生成抽奖器，初始化时调用一次即可。
 
-setLuckyNum(step)方法，参数为目标编号1~8，指定下次抽奖的获奖编号。
+setLuckyNum(step)方法，参数为目标编号1~8，指定下次抽奖的获奖编号，只有调用过该方法给定结果后才能成功抽奖，结束后end返回参数为‘complete’。
 
-\_createLottery()方法，为内部方法，用以动态创建一个抽奖器的html结构。
+getResult()方法，获取抽奖轮盘当前结果，在停止时调用才有效，返回结果为一个对象{num:nowNum,text:itemText}，num为当前item编号1~8，text为item对应的文本描述。
 
-\_btnRun()方法，内部方法，用于给抽奖按钮绑定点击事件。
 
-\_runStep()方法，内部方法,点击事件的回调函数，设定定时器，实现抽奖效果。
-
-\_step()方法，内部方法，为每一步抽奖图片动态添加mask，实现抽奖效果。
-
-\_removeHighLight()方法，内部方法，在每一步抽奖图片闪烁后去除前一张图的高亮mask。
