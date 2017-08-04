@@ -9,27 +9,39 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  */
 
 var Lottery = function () {
-    function Lottery(arr, round, dom) {
+    function Lottery(obj) {
         _classCallCheck(this, Lottery);
 
         this._items = [];
         this._nowNum = 1;
+        this._stopNum = 1;
         this._round = 3;
         this._stepTo = 0;
         this._dom = null;
         this._timer1 = null;
         this._timer2 = null;
+        this._requestTimeout = null;
         this._maxStep = 8;
         this._initialStep = 1;
         this._dataSourceTime = 5000;
 
-        this._items = arr;
+        this._startHook = function () {
+            return 0;
+        };
+
+        this._endHook = function () {
+            return 0;
+        };
+
+        this._items = obj.items;
         this._nowNum = 1;
-        this._round = round;
-        this._dom = dom;
+        this._round = obj.round;
+        this._dom = obj.dom;
         this._stepTo = 0;
+        this._startHook = obj.startFun;
+        this._endHook = obj.endFun;
         // this.dataSource = null;
-        this._dataSourceTime = 5 * 1000;
+        this._dataSourceTime = obj.timeout;
         //
         // Promise.then(toStep => {
         //     setLucy...
@@ -48,7 +60,7 @@ var Lottery = function () {
             // }
             var newName = className - 1;
             var idx = className <= this._initialStep ? this._maxStep : newName;
-            var highLightItem = document.getElementsByName(idx.toString())[0];
+            var highLightItem = this._dom.querySelector('[name="' + idx.toString() + '"]');
             highLightItem.removeAttribute('class');
         }
     }, {
@@ -57,12 +69,12 @@ var Lottery = function () {
             if (this._nowNum >= this._maxStep) {
                 this._nowNum = this._initialStep;
                 this._removeHighLight(this._nowNum);
-                var nowItem = document.getElementsByName(this._nowNum.toString())[0];
+                var nowItem = this._dom.querySelector('[name="' + this._nowNum.toString() + '"]');
                 nowItem.setAttribute('class', 'mask');
             } else {
                 this._nowNum++;
                 this._removeHighLight(this._nowNum);
-                var _nowItem = document.getElementsByName(this._nowNum.toString())[0];
+                var _nowItem = this._dom.querySelector('[name="' + this._nowNum.toString() + '"]');
                 _nowItem.setAttribute('class', 'mask');
             }
         }
@@ -70,14 +82,16 @@ var Lottery = function () {
         key: '_runStep',
         value: function _runStep() {
             var num = 1;
-            var num2 = 1;
+            var round = this._round;
             var self = this;
-            var request = setTimeout(function () {
+            this._requestTimeout = setTimeout(function () {
+                self._endHook('timeout');
                 clearInterval(self._timer1);
                 clearInterval(self._timer2);
                 self._stepTo = 0;
                 self._timer1 = null;
                 self._timer2 = null;
+                self._stopNum = self._nowNum;
                 alert('服务器请求超时');
                 return '服务器请求超时';
             }, this._dataSourceTime);
@@ -109,31 +123,30 @@ var Lottery = function () {
             // interval(tick(self), 100);
 
             self._timer1 = setInterval(function () {
-                var round = self._round;
                 self._step();
                 num++;
-                if (num > round * 8) {
-                    if (self._stepTo === 0) {
-                        round++;
-                    } else {
-                        clearTimeout(request);
-                        clearInterval(self._timer1);
-                        num = 1;
-                        var deep = self;
-                        deep._timer2 = setInterval(function () {
-                            if (num >= deep._stepTo + 8) {
-                                clearInterval(deep._timer2);
-                                alert(deep._items[deep._nowNum]['text']);
-                                deep.getResult();
-                                deep._stepTo = 0;
-                                deep._timer1 = null;
-                                deep._timer2 = null;
-                            } else {
-                                deep._step();
-                                num++;
-                            }
-                        }, 300);
-                    }
+                if (num === round * self._maxStep && self._stepTo === 0) {
+                    round++;
+                } else if (num === round * self._maxStep) {
+                    clearTimeout(self._requestTimeout);
+                    clearInterval(self._timer1);
+                    num = 1;
+                    var deep = self;
+                    deep._timer2 = setInterval(function () {
+                        if (num > deep._stepTo + deep._maxStep) {
+                            deep._endHook('complete');
+                            clearInterval(deep._timer2);
+                            alert(deep._items[deep._nowNum]['text']);
+                            deep.getResult();
+                            deep._stepTo = 0;
+                            deep._timer1 = null;
+                            deep._timer2 = null;
+                            deep._stopNum = deep._nowNum;
+                        } else {
+                            deep._step();
+                            num++;
+                        }
+                    }, 300);
                 }
             }, 100);
         }
@@ -141,6 +154,7 @@ var Lottery = function () {
         key: '_btnRun',
         value: function _btnRun() {
             if (!this._timer1 && !this._timer2) {
+                this._startHook();
                 this._runStep();
             }
         }
@@ -150,16 +164,30 @@ var Lottery = function () {
 
             var div = document.createElement('div');
             div.setAttribute("id", 'lottery');
-            div.innerHTML = '<div class="row"><div class="box"><img src="' + this._items[1]['url'] + '"><div class="mask" name="1"></div></div>' + '<div class="box"><img src="' + this._items[2]['url'] + '"><div name="2"></div></div>' + '<div class="box"><img src="' + this._items[3]['url'] + '"><div name="3"></div></div><div class="clear"></div></div>' + '<div class="row"><div class="box"><img src="' + this._items[4]['url'] + '"><div name="8"></div></div>' + '<div name="start-btn" class="box"><img src="' + this._items[0]['url'] + '"></div>' + '<div class="box"><img src="' + this._items[5]['url'] + '"><div name="4"></div></div><div class="clear"></div></div>' + '<div class="row"><div class="box"><img src="' + this._items[6]['url'] + '"><div name="7"></div></div>' + '<div class="box"><img src="' + this._items[7]['url'] + '"><div name="6"></div></div>' + '<div class="box"><img src="' + this._items[8]['url'] + '"><div name="5"></div></div><div class="clear"></div></div>';
+            // for (let i =0;i < 3;i++){
+            //     let row = document.createElement('div');
+            //     row.setAttribute('class','row');
+            //     for(let j = 0;j < 3;j++){
+            //         let box = document.createElement('div');
+            //         box.setAttribute('class','row');
+            //         if(this._items[0]['isbtn']){
+            //             let url =
+            //         }
+            //
+            //     }
+            //
+            // }
+
+            div.innerHTML = '<div class="row"><div class="box"><img src="' + this._items[1]['url'] + '"><div class="mask" name="1"></div></div>' + '<div class="box"><img src="' + this._items[2]['url'] + '"><div name="2"></div></div>' + '<div class="box"><img src="' + this._items[3]['url'] + '"><div name="3"></div></div></div>' + '<div class="row"><div class="box"><img src="' + this._items[4]['url'] + '"><div name="8"></div></div>' + '<div name="start-btn" class="box"><img src="' + this._items[0]['url'] + '"></div>' + '<div class="box"><img src="' + this._items[5]['url'] + '"><div name="4"></div></div></div>' + '<div class="row"><div class="box"><img src="' + this._items[6]['url'] + '"><div name="7"></div></div>' + '<div class="box"><img src="' + this._items[7]['url'] + '"><div name="6"></div></div>' + '<div class="box"><img src="' + this._items[8]['url'] + '"><div name="5"></div></div></div>';
             this._dom.appendChild(div);
         }
     }, {
         key: 'setLuckyNum',
         value: function setLuckyNum(ste) {
             if (ste >= this._nowNum) {
-                this._stepTo = ste + 1 - this._nowNum;
+                this._stepTo = ste + 1 - this._stopNum;
             } else {
-                this._stepTo = ste + 9 - this._nowNum;
+                this._stepTo = ste + 9 - this._stopNum;
             }
         }
     }, {
@@ -177,20 +205,25 @@ var Lottery = function () {
         key: 'getResult',
         value: function getResult() {
             if (!this._timer1 && !this._timer2) {
-                return this._items[this._nowNum]['text'];
+                return {
+                    num: this._stopNum,
+                    text: this._items[this._nowNum]['text']
+                };
             }
             return '错误请求';
         }
     }, {
         key: 'stop',
         value: function stop() {
+            this._endHook('break');
+            clearTimeout(this._requestTimeout);
             clearInterval(this._timer1);
             clearInterval(this._timer2);
             this._stepTo = 0;
             this._timer1 = null;
             this._timer2 = null;
+            this._stopNum = this._nowNum;
             alert(this._items[this._nowNum]['text']);
-            this.getResult();
         }
     }]);
 
