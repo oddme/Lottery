@@ -70,7 +70,11 @@ obj.startFun和obj.endFun，是系统在抽奖开始和结束时会调用的两�
     let end = function(event){
         console.log('now lottery'+event);
     }
-    let lottery = new Lottery(arr,round,foo,5000,start,end);
+    obj.items = [...];
+    ...
+    obj.startFun = start;
+    obj.endFun = end;
+    let lottery = new Lottery(obj);
     </script>
      
 这段代码会在foo下创建一个Lottery，然后可以通过调用setLuckyNum()方法来设定中奖条目，你可以自己编写一个概率函数来确定下次的中奖号码或者从服务器获取数据，然后使用这个函数将中奖号码作为参数调用，这里也提供停止方法stop(),在实例化出lottery对象后调用即可停止.
