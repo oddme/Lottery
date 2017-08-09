@@ -1,5 +1,5 @@
 # Lottery
-a simple Lottery package 
+a simple Lottery package 演示地址http://119.29.173.52/
 
 ### 使用方法
 首先要使用这个简单的抽奖器只需要两个文件，‘css/style.css’和‘js/lottery.js’，将这两个文件引入到你的项目中就可以开始使用了。在你的js代码中插入以下代码
