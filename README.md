@@ -4,10 +4,21 @@ a simple Lottery package
 ### 使用方法
 首先要使用这个简单的抽奖器只需要两个文件，‘css/style.css’和‘js/lottery.js’，将这两个文件引入到你的项目中就可以开始使用了。在你的js代码中插入以下代码
 
-    let lottery = new Lottery(arr,round,dom,timeout,start,end);
+    let lottery = new Lottery(obj);
     lottery.start();
-    
-参数arr：按顺序传入的抽奖项目图片url和奖品描述对象组成的数组，其中第1个应为开始按钮图片，例如
+    
+传入参数obj是配置对象，包含基本配置信息。
+
+    obj{
+        items: [],
+        round: Num,
+        dom: DomObject,
+        timeout: Num,
+        startFun: Function,
+        endFun: Function
+    }
+
+obj.items按顺序传入的抽奖项目图片url和奖品描述对象组成的数组，其中第1个应为开始按钮图片，例如
     
     [{
         'url': 'images/btn.png',
@@ -39,13 +50,13 @@ a simple Lottery package
     }]
 
 
-参数round，确定基础转动圈数，该参数不影响最终结果，只是用以确定转动效果的圈数，例如，round为2，则快速转动两圈后开始减速并定位到结果。
+obj.round，确定基础转动圈数，该参数不影响最终结果，只是用以确定转动效果的圈数，例如，round为2，则快速转动两圈后开始减速并定位到结果。
 
-参数dom，是生成lottery的目标位置父节点的dom对象
+obj.dom，是生成lottery的目标位置父节点的dom对象
 
-参数timeout，是给定的超时设定，单位为ms，在超过timeout时间内还没有传入抽奖结果的话，此次抽奖会失败并提醒超时
+obj.timeout，是给定的超时设定，单位为ms，在超过timeout时间内还没有传入抽奖结果的话，此次抽奖会失败并提醒超时
 
-参数start和end，是系统在抽奖开始和结束时会调用的两个回调函数，start没有参数，end有结束状态参数event，event有三种可能取值，‘timeout’，‘compelete’和‘break’，分别代表超时结束，完成抽奖结束和中断结束。
+obj.startFun和obj.endFun，是系统在抽奖开始和结束时会调用的两个回调函数，start没有参数，end有结束状态参数event，event有三种可能取值，‘timeout’，‘compelete’和‘break’，分别代表超时结束，完成抽奖结束和中断结束。
 
 例如：
 
@@ -59,7 +70,11 @@ a simple Lottery package
     let end = function(event){
         console.log('now lottery'+event);
     }
-    let lottery = new Lottery(arr,round,foo,5000,start,end);
+    obj.items = [...];
+    ...
+    obj.startFun = start;
+    obj.endFun = end;
+    let lottery = new Lottery(obj);
     </script>
      
 这段代码会在foo下创建一个Lottery，然后可以通过调用setLuckyNum()方法来设定中奖条目，你可以自己编写一个概率函数来确定下次的中奖号码或者从服务器获取数据，然后使用这个函数将中奖号码作为参数调用，这里也提供停止方法stop(),在实例化出lottery对象后调用即可停止.
