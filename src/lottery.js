@@ -2,8 +2,11 @@
  * Created by admin on 2017/7/25.
  */
 
+export default class ll {
+    constructor() {}
+}
 
-class Lottery {
+export class Lottery {
     _items = [];
     _nowNum = 1;
     _stopNum = 1;
@@ -216,4 +219,3 @@ class Lottery {
         alert(this._items[this._nowNum]['text']);
     }
 }
-
