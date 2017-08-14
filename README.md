@@ -1,5 +1,5 @@
 # Lottery
-a simple Lottery package [演示地址](http://119.29.173.52/)(演示时可以再控制台手动调用lottery.setLuckyNum(num)自定获奖结果)
+a simple Lottery package [演示地址](http://47.94.92.35/)(演示时可以再控制台手动调用lottery.setLuckyNum(num)自定获奖结果)
 
 ![image](https://github.com/oddme/demoImg/blob/master/lottery.gif)
 
